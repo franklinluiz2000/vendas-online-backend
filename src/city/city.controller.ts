@@ -9,7 +9,7 @@ export class CityController {
   @Get('/:stateId')
   async getAllCitiesByStateId(
     @Param('stateId') stateId: number,
-  ): Promise<CityEntity[]> {
+  ): Promise<CityEntity[] | null> {
     return this.cityService.getAllCitiesByStateId(stateId);
   }
 }
