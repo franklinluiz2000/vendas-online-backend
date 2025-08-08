@@ -30,7 +30,11 @@ export class UserController {
   }
 
   @Get('/:userId')
-  async getUserById(@Param('userId') userId: number) {
-    return this.userService.getUserByIdUsingRelations(userId);
+  async getUserById(@Param('userId') userId: number): Promise<ReturnUserDto> {
+    const user = await this.userService.getUserByIdUsingRelations(userId);
+    if (!user) {
+      throw new Error('Not found user with this id');
+    }
+    return new ReturnUserDto(user);
   }
 }
