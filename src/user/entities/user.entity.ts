@@ -22,7 +22,7 @@ export class UserEntity {
   password: string;
 
   @Column({ name: 'type_user', nullable: false })
-  type_user: number;
+  typeUser: number;
 
   @OneToMany(() => AddressEntity, (address) => address.user)
   addresses?: AddressEntity[];
