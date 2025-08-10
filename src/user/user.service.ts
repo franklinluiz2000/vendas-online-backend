@@ -21,9 +21,14 @@ export class UserService {
     createUserDto: CreateUserDto,
     userType?: number,
   ): Promise<UserEntity> {
-    const userExists = await this.findUserByEmail(createUserDto.email).catch(
-      () => undefined,
-    );
+    let userExists: UserEntity | undefined;
+    try {
+      userExists = await this.findUserByEmail(createUserDto.email);
+    } catch (error) {
+      // If a user is not found, an exception will be thrown, which we can ignore here.
+      userExists = undefined;
+    }
+
     if (userExists) {
       throw new ConflictException('Email already is registered');
     }
@@ -50,7 +55,7 @@ export class UserService {
     return user;
   }
 
-  async findUserByEmail(email: string): Promise<UserEntity | null> {
+  async findUserByEmail(email: string): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
       throw new NotFoundException(`Email: ${email} not found`);

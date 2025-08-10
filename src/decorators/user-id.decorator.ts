@@ -3,7 +3,7 @@ import {
   ExecutionContext,
   UnauthorizedException,
 } from '@nestjs/common';
-import { authorizantionToLoginPayload } from '../utils/base-64-converter';
+import { authorizationToLoginPayload } from '../utils/base-64-converter';
 
 export const UserId = createParamDecorator(
   (_, ctx: ExecutionContext): number => {
@@ -17,7 +17,7 @@ export const UserId = createParamDecorator(
       throw new UnauthorizedException('Authorization token not found');
     }
 
-    const loginPayload = authorizantionToLoginPayload(authorization);
+    const loginPayload = authorizationToLoginPayload(authorization);
 
     if (!loginPayload?.id) {
       throw new UnauthorizedException('Invalid authorization token');
