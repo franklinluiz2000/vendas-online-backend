@@ -1,9 +1,14 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { UserEntity } from './entities/user.entity';
 import { CreateUserDto } from './dtos/createUser.dto';
 import { hash } from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { UserType } from './enum/user-type.enum';
 
 @Injectable()
 export class UserService {
@@ -12,12 +17,23 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async createUser(createUserDto: CreateUserDto): Promise<UserEntity> {
+  async createUser(
+    createUserDto: CreateUserDto,
+    userType?: number,
+  ): Promise<UserEntity> {
+    const userExists = await this.findUserByEmail(createUserDto.email).catch(
+      () => undefined,
+    );
+    if (userExists) {
+      throw new ConflictException('Email already is registered');
+    }
+
     const saltOrRounds = 10;
     const passwordHash = await hash(createUserDto.password, saltOrRounds);
 
     return this.userRepository.save({
       ...createUserDto,
+      typeUser: userType ? userType : UserType.User,
       password: passwordHash,
     });
   }

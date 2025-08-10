@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Get,
+  NotFoundException,
   Param,
   Post,
   UsePipes,
@@ -11,6 +12,8 @@ import { CreateUserDto } from './dtos/createUser.dto';
 import { UserService } from './user.service';
 import { UserEntity } from './entities/user.entity';
 import { ReturnUserDto } from './dtos/returnUser.dto';
+import { Roles } from 'src/decorators/roles.decorator';
+import { UserType } from './enum/user-type.enum';
 
 @Controller('user')
 export class UserController {
@@ -22,6 +25,7 @@ export class UserController {
     return this.userService.createUser(createUser);
   }
 
+  @Roles(UserType.User)
   @Get()
   async getAllUsers(): Promise<ReturnUserDto[]> {
     return (await this.userService.getAllUsers()).map(
@@ -29,11 +33,12 @@ export class UserController {
     );
   }
 
+  @Roles(UserType.User)
   @Get('/:userId')
   async getUserById(@Param('userId') userId: number): Promise<ReturnUserDto> {
     const user = await this.userService.getUserByIdUsingRelations(userId);
     if (!user) {
-      throw new Error('Not found user with this id');
+      throw new NotFoundException('Not found user with this id');
     }
     return new ReturnUserDto(user);
   }
